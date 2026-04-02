@@ -4,6 +4,7 @@ import path from "path";
 import { getConfigCache, setConfigCache } from "@/lib/config-cache";
 import { OPENCLAW_CONFIG_PATH, OPENCLAW_HOME } from "@/lib/openclaw-paths";
 import { shouldHidePlatformChannel } from "@/lib/platforms";
+import { readJsonFileSync } from "@/lib/json";
 
 // 配置文件路径：优先使用 OPENCLAW_HOME 环境变量，否则默认 ~/.openclaw
 const CONFIG_PATH = OPENCLAW_CONFIG_PATH;
@@ -210,7 +211,8 @@ function getChannelDirectPeerIds(
   channel: string
 ): Record<string, string> {
   const map: Record<string, string> = {};
-  const pattern = new RegExp(`^agent:[^:]+:${channel}:direct:(.+)$`);
+  const safeChannel = channel.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+  const pattern = new RegExp(`^agent:[^:]+:${safeChannel}:direct:(.+)$`);
   for (const agentId of agentIds) {
     try {
       const sessions = sessionsMap.get(agentId);
@@ -262,8 +264,7 @@ export async function GET() {
   }
 
   try {
-    const raw = fs.readFileSync(CONFIG_PATH, "utf-8");
-    const config = JSON.parse(raw);
+    const config = readJsonFileSync(CONFIG_PATH);
 
     // 提取 agents 信息
     const defaults = config.agents?.defaults || {};
