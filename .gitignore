@@ -1,8 +1,42 @@
-node_modules
-.next
+node_modules/
+.next/
 *.tsbuildinfo
 next-env.d.ts
-.idea
+.idea/
 .DS_Store
 /.openclaw
 /public/assets/pixel-office/*.mp3
+
+# Local environment and secrets
+.env
+.env.*
+!.env.example
+config.json
+secrets.json
+token.txt
+credentials.json
+cookies.json
+*.session
+cluster.local.env
+
+# Python and test caches
+.venv/
+venv/
+__pycache__/
+.pytest_cache/
+.cache/
+
+# Generated build/package output
+dist/
+build/
+
+# Local runtime state / smoke-test scratch files
+logs/
+*.log
+_tmp_*
+_tw_*
+tmp_*
+test-results/
+run-standalone-*.cmd
+run-standalone-inbound-auth.cmd
+start-inbound-background.ps1
