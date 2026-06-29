@@ -22,6 +22,10 @@ export function summarizeCouncilItemOperatorState(raw: any, opts?: any): any;
 export function getCouncilItemActionAvailability(raw: any, opts?: any): any;
 export function formatCouncilDecisionApiError(decision: string, input?: any): string;
 export function buildCouncilItemsFromUsage(sessionsData?: any, opts?: any): any[];
+export function buildCouncilItemsFromUsageWithModel(
+  sessionsData?: any,
+  opts?: { now?: string; max?: number; timeoutMs?: number }
+): Promise<{ items: any[]; mode: "model" | "template"; model: string | null; reason: string | null }>;
 export function normalizeCouncilItem(raw: any, opts?: any): any;
 export function mergeCouncilItems(existing?: any[], incoming?: any[], opts?: any): any[];
 export function transformActiveProjects(activeProjects?: Record<string, any>): any[];

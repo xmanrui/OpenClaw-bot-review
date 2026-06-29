@@ -1,7 +1,7 @@
 import {
   appendCommandAudit,
   appendCouncilItems,
-  buildCouncilItemsFromUsage,
+  buildCouncilItemsFromUsageWithModel,
   commandError,
   commandOk,
   findSessionFile,
@@ -68,19 +68,25 @@ export async function runSelfImprovementCommand(commandId: SelfImprovementComman
     let responsePayload: any;
 
     if (commandId === "dry-run") {
-      const previewItems = buildCouncilItemsFromUsage(sessionData);
+      const generation = await buildCouncilItemsFromUsageWithModel(sessionData);
+      const previewItems = generation.items;
       responsePayload = commandOk({
         command,
-        message: `Dry run generated ${previewItems.length} improvement item${previewItems.length === 1 ? "" : "s"}; no files were changed.`,
+        message: `Dry run generated ${previewItems.length} improvement item${previewItems.length === 1 ? "" : "s"} via ${generation.mode}; no files were changed.`,
         output: [
           `DRY RUN ONLY — no writes performed`,
+          `Generation mode: ${generation.mode}${generation.model ? ` (model: ${generation.model})` : ""}`,
+          generation.reason ? `Note: ${generation.reason}` : null,
           `Source: ${sessionPath ?? "no session file found"}`,
-          `Session messages inspected: ${sessionMessages}`,
+          `Session entries inspected: ${sessionMessages}`,
           `Items previewed: ${previewItems.length}`,
           ...itemSummary(previewItems),
-        ],
+        ].filter((line): line is string => Boolean(line)),
         details: {
           mode: "dry-run",
+          generation_mode: generation.mode,
+          model: generation.model,
+          generation_reason: generation.reason,
           source: sessionPath,
           session_messages: sessionMessages,
           items: previewItems,
@@ -111,21 +117,27 @@ export async function runSelfImprovementCommand(commandId: SelfImprovementComman
         },
       });
     } else {
-      const items = buildCouncilItemsFromUsage(sessionData);
+      const generation = await buildCouncilItemsFromUsageWithModel(sessionData);
+      const items = generation.items;
       const allItems = appendCouncilItems(items);
       upsertLedgerProposed(items);
       responsePayload = commandOk({
         command,
-        message: `${command.label} complete: ${items.length} item${items.length === 1 ? "" : "s"} processed, ${allItems.length} stored total.`,
+        message: `${command.label} complete: ${items.length} item${items.length === 1 ? "" : "s"} processed via ${generation.mode}, ${allItems.length} stored total.`,
         output: [
+          `Generation mode: ${generation.mode}${generation.model ? ` (model: ${generation.model})` : ""}`,
+          generation.reason ? `Note: ${generation.reason}` : null,
           `Source: ${sessionPath ?? "no session file found"}`,
-          `Session messages inspected: ${sessionMessages}`,
+          `Session entries inspected: ${sessionMessages}`,
           `Items processed: ${items.length}`,
           `Stored council total: ${allItems.length}`,
           `Ledger updated: yes`,
           ...itemSummary(items),
-        ],
+        ].filter((line): line is string => Boolean(line)),
         details: {
+          generation_mode: generation.mode,
+          model: generation.model,
+          generation_reason: generation.reason,
           source: sessionPath,
           session_messages: sessionMessages,
           items,
