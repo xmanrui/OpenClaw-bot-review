@@ -1,13 +1,13 @@
 {
   "name": "openclaw-bot-review",
-  "version": "1.0.0",
+  "version": "3.0.0",
   "private": true,
   "license": "MIT",
   "scripts": {
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
-    "test": "vitest run"
+    "test": "vitest run __tests__ && node --test tests/*.test.mjs"
   },
   "dependencies": {
     "@tailwindcss/postcss": "^4.0.0",
