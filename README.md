@@ -107,7 +107,7 @@ The dashboard includes built-in metadata for the following LLM providers, enabli
 
 | Provider | Models | API Type | Base URL |
 |----------|--------|----------|----------|
-| **[MiniMax](https://platform.minimax.io)** | `MiniMax-M2.7`, `MiniMax-M2.7-highspeed` | OpenAI-compatible | `https://api.minimax.io/v1` |
+| **[MiniMax](https://platform.minimax.io)** | `MiniMax-M3`, `MiniMax-M2.7`, `MiniMax-M2.7-highspeed` | OpenAI-compatible (global) / Anthropic-compatible | `https://api.minimax.io/v1` (global), `https://api.minimaxi.com/v1` (CN) |
 
 To use MiniMax with OpenClaw, add the following to your `models.json`:
 
@@ -119,6 +119,7 @@ To use MiniMax with OpenClaw, add the following to your `models.json`:
       "api": "openai-completions",
       "apiKey": "your-minimax-api-key",
       "models": [
+        { "id": "MiniMax-M3", "name": "MiniMax-M3" },
         { "id": "MiniMax-M2.7", "name": "MiniMax-M2.7" },
         { "id": "MiniMax-M2.7-highspeed", "name": "MiniMax-M2.7-highspeed" }
       ]
@@ -127,7 +128,13 @@ To use MiniMax with OpenClaw, add the following to your `models.json`:
 }
 ```
 
-For more details, see the [MiniMax API Reference](https://platform.minimax.io/docs/api-reference/text-openai-api).
+MiniMax exposes both OpenAI- and Anthropic-compatible endpoints, with regional
+variants: the global endpoint (`https://api.minimax.io/v1` and
+`https://api.minimax.io/anthropic`) and the China endpoint
+(`https://api.minimaxi.com/v1` and `https://api.minimaxi.com/anthropic`).
+`MiniMax-M3` supports a 1,000,000-token context window with text, image, and
+video inputs and adaptive/disabled thinking; `MiniMax-M2.7` has thinking always
+on. For more details, see the [MiniMax API Reference](https://platform.minimax.io/docs/api-reference/api-overview).
 
 ## Docker Deployment
 
@@ -231,7 +238,7 @@ npm run start
 
 | Provider | 模型 | API 类型 | Base URL |
 |----------|------|----------|----------|
-| **[MiniMax](https://platform.minimax.io)** | `MiniMax-M2.7`, `MiniMax-M2.7-highspeed` | OpenAI 兼容 | `https://api.minimax.io/v1` |
+| **[MiniMax](https://platform.minimax.io)** | `MiniMax-M3`, `MiniMax-M2.7`, `MiniMax-M2.7-highspeed` | OpenAI 兼容（全球）/ Anthropic 兼容 | `https://api.minimax.io/v1`（全球），`https://api.minimaxi.com/v1`（中国） |
 
 在 `models.json` 中添加 MiniMax 配置：
 
@@ -243,6 +250,7 @@ npm run start
       "api": "openai-completions",
       "apiKey": "your-minimax-api-key",
       "models": [
+        { "id": "MiniMax-M3", "name": "MiniMax-M3" },
         { "id": "MiniMax-M2.7", "name": "MiniMax-M2.7" },
         { "id": "MiniMax-M2.7-highspeed", "name": "MiniMax-M2.7-highspeed" }
       ]
@@ -251,7 +259,7 @@ npm run start
 }
 ```
 
-更多信息请参考 [MiniMax API 文档](https://platform.minimax.io/docs/api-reference/text-openai-api)。
+更多信息请参考 [MiniMax API 文档](https://platform.minimax.io/docs/api-reference/api-overview)。
 
 ## 作者联系方式（contact）
 小红书：[主页](https://xhslink.com/m/AsJKWgEBt1I) 

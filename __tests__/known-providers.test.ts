@@ -8,6 +8,7 @@ describe("getKnownProvider", () => {
     expect(provider!.displayName).toBe("MiniMax");
     expect(provider!.api).toBe("openai-completions");
     expect(provider!.baseUrl).toBe("https://api.minimax.io/v1");
+    expect(provider!.anthropicBaseUrl).toBe("https://api.minimax.io/anthropic");
   });
 
   it("returns MiniMax provider metadata for case-insensitive match", () => {
@@ -21,33 +22,83 @@ describe("getKnownProvider", () => {
     expect(provider).toBeNull();
   });
 
-  it("includes both MiniMax models", () => {
+  it("includes MiniMax-M3, MiniMax-M2.7, and MiniMax-M2.7-highspeed models", () => {
     const provider = getKnownProvider("minimax");
-    expect(provider!.models).toHaveLength(2);
     const ids = provider!.models.map((m) => m.id);
+    expect(ids).toContain("MiniMax-M3");
     expect(ids).toContain("MiniMax-M2.7");
     expect(ids).toContain("MiniMax-M2.7-highspeed");
   });
 
-  it("MiniMax models have correct contextWindow and maxTokens", () => {
+  it("MiniMax-M3 has 1,000,000-token context, multimodal input, and adaptive/disabled thinking", () => {
     const provider = getKnownProvider("minimax");
-    for (const model of provider!.models) {
-      expect(model.contextWindow).toBe(204800);
-      expect(model.maxTokens).toBe(192000);
-      expect(model.reasoning).toBe(false);
-      expect(model.input).toEqual(["text"]);
-    }
+    const m3 = provider!.models.find((m) => m.id === "MiniMax-M3");
+    expect(m3).toBeDefined();
+    expect(m3!.contextWindow).toBe(1000000);
+    expect(m3!.reasoning).toBe(true);
+    expect(m3!.input).toEqual(["text", "image", "video"]);
+    expect(m3!.thinking).toEqual(["adaptive", "disabled"]);
+  });
+
+  it("MiniMax-M2.7 retains context window, text-only input, and marks reasoning always on", () => {
+    const provider = getKnownProvider("minimax");
+    const m27 = provider!.models.find((m) => m.id === "MiniMax-M2.7");
+    expect(m27).toBeDefined();
+    expect(m27!.contextWindow).toBe(204800);
+    expect(m27!.maxTokens).toBe(192000);
+    expect(m27!.reasoning).toBe(true);
+    expect(m27!.input).toEqual(["text"]);
+    expect(m27!.thinking).toEqual(["always_on"]);
+  });
+
+  it("MiniMax-M2.7-highspeed retains its non-reasoning text-only metadata", () => {
+    const provider = getKnownProvider("minimax");
+    const highspeed = provider!.models.find((m) => m.id === "MiniMax-M2.7-highspeed");
+    expect(highspeed).toBeDefined();
+    expect(highspeed!.contextWindow).toBe(204800);
+    expect(highspeed!.maxTokens).toBe(192000);
+    expect(highspeed!.reasoning).toBe(false);
+    expect(highspeed!.input).toEqual(["text"]);
+  });
+});
+
+describe("MiniMax regional endpoints", () => {
+  it("exposes global and CN regional OpenAI- and Anthropic-compatible base URLs", () => {
+    const provider = getKnownProvider("minimax");
+    expect(provider!.regions).toBeDefined();
+    const regions = provider!.regions!;
+    expect(regions).toHaveLength(2);
+
+    const globalRegion = regions.find((r) => r.region === "global_en");
+    expect(globalRegion).toBeDefined();
+    expect(globalRegion!.openaiBaseUrl).toBe("https://api.minimax.io/v1");
+    expect(globalRegion!.anthropicBaseUrl).toBe("https://api.minimax.io/anthropic");
+
+    const cnRegion = regions.find((r) => r.region === "cn_zh");
+    expect(cnRegion).toBeDefined();
+    expect(cnRegion!.openaiBaseUrl).toBe("https://api.minimaxi.com/v1");
+    expect(cnRegion!.anthropicBaseUrl).toBe("https://api.minimaxi.com/anthropic");
   });
 });
 
 describe("enrichModelMeta", () => {
-  it("fills in missing metadata for known MiniMax model", () => {
+  it("fills in missing metadata for known MiniMax-M3 model", () => {
+    const model = { id: "MiniMax-M3", name: "MiniMax-M3" };
+    const enriched = enrichModelMeta("minimax", model);
+    expect(enriched.contextWindow).toBe(1000000);
+    expect(enriched.reasoning).toBe(true);
+    expect(enriched.input).toEqual(["text", "image", "video"]);
+    expect(enriched.thinking).toEqual(["adaptive", "disabled"]);
+  });
+
+  it("fills in missing metadata for known MiniMax-M2.7 model", () => {
     const model = { id: "MiniMax-M2.7", name: "MiniMax-M2.7" };
     const enriched = enrichModelMeta("minimax", model);
     expect(enriched.contextWindow).toBe(204800);
     expect(enriched.maxTokens).toBe(192000);
-    expect(enriched.reasoning).toBe(false);
+    expect(enriched.reasoning).toBe(true);
     expect(enriched.input).toEqual(["text"]);
+    expect(enriched.thinking).toEqual(["always_on"]);
   });
 
   it("does not override existing metadata", () => {
@@ -96,5 +147,12 @@ describe("enrichModelMeta", () => {
     const model = { id: "minimax-m2.7" };
     const enriched = enrichModelMeta("minimax", model);
     expect(enriched.contextWindow).toBe(204800);
+  });
+
+  it("enriches MiniMax-M3 case-insensitively", () => {
+    const model = { id: "minimax-m3" };
+    const enriched = enrichModelMeta("minimax", model);
+    expect(enriched.contextWindow).toBe(1000000);
+    expect(enriched.thinking).toEqual(["adaptive", "disabled"]);
   });
 });
