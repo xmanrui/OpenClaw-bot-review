@@ -238,7 +238,7 @@ npm run start
 
 | Provider | 模型 | API 类型 | Base URL |
 |----------|------|----------|----------|
-| **[MiniMax](https://platform.minimax.io)** | `MiniMax-M3`, `MiniMax-M2.7`, `MiniMax-M2.7-highspeed` | OpenAI 兼容（全球）/ Anthropic 兼容 | `https://api.minimax.io/v1`（全球），`https://api.minimaxi.com/v1`（中国） |
+| **[MiniMax](https://platform.minimax.io)** | `MiniMax-M3`, `MiniMax-M2.7`, `MiniMax-M2.7-highspeed` | OpenAI-compatible (global) / Anthropic-compatible | `https://api.minimax.io/v1` (global), `https://api.minimaxi.com/v1` (China) |
 
 在 `models.json` 中添加 MiniMax 配置：
 
@@ -259,7 +259,7 @@ npm run start
 }
 ```
 
-更多信息请参考 [MiniMax API 文档](https://platform.minimax.io/docs/api-reference/api-overview)。
+For more details, see the [MiniMax API documentation](https://platform.minimax.io/docs/api-reference/api-overview).
 
 ## 作者联系方式（contact）
 小红书：[主页](https://xhslink.com/m/AsJKWgEBt1I) 
