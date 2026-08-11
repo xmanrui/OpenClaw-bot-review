@@ -13,6 +13,7 @@ export interface KnownModelMeta {
   maxTokens?: number;
   reasoning: boolean;
   input: string[];
+  pricingUsdPerMillionTokens?: KnownModelPricing;
   /**
    * Supported thinking modes, e.g. ["adaptive", "disabled"] or ["always_on"].
    * Mirrors the provider's published thinking configuration for a model.
@@ -20,10 +21,18 @@ export interface KnownModelMeta {
   thinking?: string[];
 }
 
+export interface KnownModelPricing {
+  input: number;
+  output: number;
+  cacheRead: number;
+  cacheWrite: number | null;
+}
+
 export interface KnownProviderRegionMeta {
   region: string;
   openaiBaseUrl: string;
   anthropicBaseUrl: string;
+  docsRoot: string;
 }
 
 export interface KnownProviderMeta {
@@ -54,11 +63,13 @@ const KNOWN_PROVIDERS: Record<string, KnownProviderMeta> = {
         region: "global_en",
         openaiBaseUrl: "https://api.minimax.io/v1",
         anthropicBaseUrl: "https://api.minimax.io/anthropic",
+        docsRoot: "https://platform.minimax.io/docs",
       },
       {
         region: "cn_zh",
         openaiBaseUrl: "https://api.minimaxi.com/v1",
         anthropicBaseUrl: "https://api.minimaxi.com/anthropic",
+        docsRoot: "https://platform.minimaxi.com/docs",
       },
     ],
     models: [
@@ -68,6 +79,12 @@ const KNOWN_PROVIDERS: Record<string, KnownProviderMeta> = {
         contextWindow: 1000000,
         reasoning: true,
         input: ["text", "image", "video"],
+        pricingUsdPerMillionTokens: {
+          input: 0.6,
+          output: 2.4,
+          cacheRead: 0.12,
+          cacheWrite: null,
+        },
         thinking: ["adaptive", "disabled"],
       },
       {
@@ -77,6 +94,12 @@ const KNOWN_PROVIDERS: Record<string, KnownProviderMeta> = {
         maxTokens: 192000,
         reasoning: true,
         input: ["text"],
+        pricingUsdPerMillionTokens: {
+          input: 0.3,
+          output: 1.2,
+          cacheRead: 0.06,
+          cacheWrite: 0.375,
+        },
         thinking: ["always_on"],
       },
       {
@@ -104,7 +127,16 @@ export function getKnownProvider(providerId: string): KnownProviderMeta | null {
  */
 export function enrichModelMeta(
   providerId: string,
-  model: { id: string; name?: string; contextWindow?: number; maxTokens?: number; reasoning?: boolean; input?: string[]; thinking?: string[] },
+  model: {
+    id: string;
+    name?: string;
+    contextWindow?: number;
+    maxTokens?: number;
+    reasoning?: boolean;
+    input?: string[];
+    pricingUsdPerMillionTokens?: KnownModelPricing;
+    thinking?: string[];
+  },
 ): typeof model {
   const knownProvider = getKnownProvider(providerId);
   if (!knownProvider) return model;
@@ -121,6 +153,8 @@ export function enrichModelMeta(
     maxTokens: model.maxTokens ?? knownModel.maxTokens,
     reasoning: model.reasoning ?? knownModel.reasoning,
     input: model.input ?? knownModel.input,
+    pricingUsdPerMillionTokens:
+      model.pricingUsdPerMillionTokens ?? knownModel.pricingUsdPerMillionTokens,
     thinking: model.thinking ?? knownModel.thinking,
   };
 }

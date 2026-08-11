@@ -37,6 +37,12 @@ describe("getKnownProvider", () => {
     expect(m3!.contextWindow).toBe(1000000);
     expect(m3!.reasoning).toBe(true);
     expect(m3!.input).toEqual(["text", "image", "video"]);
+    expect(m3!.pricingUsdPerMillionTokens).toEqual({
+      input: 0.6,
+      output: 2.4,
+      cacheRead: 0.12,
+      cacheWrite: null,
+    });
     expect(m3!.thinking).toEqual(["adaptive", "disabled"]);
   });
 
@@ -48,6 +54,12 @@ describe("getKnownProvider", () => {
     expect(m27!.maxTokens).toBe(192000);
     expect(m27!.reasoning).toBe(true);
     expect(m27!.input).toEqual(["text"]);
+    expect(m27!.pricingUsdPerMillionTokens).toEqual({
+      input: 0.3,
+      output: 1.2,
+      cacheRead: 0.06,
+      cacheWrite: 0.375,
+    });
     expect(m27!.thinking).toEqual(["always_on"]);
   });
 
@@ -73,11 +85,13 @@ describe("MiniMax regional endpoints", () => {
     expect(globalRegion).toBeDefined();
     expect(globalRegion!.openaiBaseUrl).toBe("https://api.minimax.io/v1");
     expect(globalRegion!.anthropicBaseUrl).toBe("https://api.minimax.io/anthropic");
+    expect(globalRegion!.docsRoot).toBe("https://platform.minimax.io/docs");
 
     const cnRegion = regions.find((r) => r.region === "cn_zh");
     expect(cnRegion).toBeDefined();
     expect(cnRegion!.openaiBaseUrl).toBe("https://api.minimaxi.com/v1");
     expect(cnRegion!.anthropicBaseUrl).toBe("https://api.minimaxi.com/anthropic");
+    expect(cnRegion!.docsRoot).toBe("https://platform.minimaxi.com/docs");
   });
 });
 
@@ -88,6 +102,12 @@ describe("enrichModelMeta", () => {
     expect(enriched.contextWindow).toBe(1000000);
     expect(enriched.reasoning).toBe(true);
     expect(enriched.input).toEqual(["text", "image", "video"]);
+    expect(enriched.pricingUsdPerMillionTokens).toEqual({
+      input: 0.6,
+      output: 2.4,
+      cacheRead: 0.12,
+      cacheWrite: null,
+    });
     expect(enriched.thinking).toEqual(["adaptive", "disabled"]);
   });
 
@@ -98,6 +118,12 @@ describe("enrichModelMeta", () => {
     expect(enriched.maxTokens).toBe(192000);
     expect(enriched.reasoning).toBe(true);
     expect(enriched.input).toEqual(["text"]);
+    expect(enriched.pricingUsdPerMillionTokens).toEqual({
+      input: 0.3,
+      output: 1.2,
+      cacheRead: 0.06,
+      cacheWrite: 0.375,
+    });
     expect(enriched.thinking).toEqual(["always_on"]);
   });
 
@@ -109,6 +135,13 @@ describe("enrichModelMeta", () => {
       maxTokens: 50000,
       reasoning: true,
       input: ["text", "image"],
+      pricingUsdPerMillionTokens: {
+        input: 1,
+        output: 2,
+        cacheRead: 0.5,
+        cacheWrite: null,
+      },
+      thinking: ["disabled"],
     };
     const enriched = enrichModelMeta("minimax", model);
     expect(enriched.name).toBe("Custom Name");
@@ -116,6 +149,13 @@ describe("enrichModelMeta", () => {
     expect(enriched.maxTokens).toBe(50000);
     expect(enriched.reasoning).toBe(true);
     expect(enriched.input).toEqual(["text", "image"]);
+    expect(enriched.pricingUsdPerMillionTokens).toEqual({
+      input: 1,
+      output: 2,
+      cacheRead: 0.5,
+      cacheWrite: null,
+    });
+    expect(enriched.thinking).toEqual(["disabled"]);
   });
 
   it("fills in undefined fields while keeping defined ones", () => {

@@ -88,6 +88,8 @@ describe("MiniMax endpoint configuration", () => {
     expect(provider).not.toBeNull();
     expect(provider!.baseUrl).toBe("https://api.minimax.io/v1");
     expect(provider!.anthropicBaseUrl).toBe("https://api.minimax.io/anthropic");
+    const global = provider!.regions?.find((r) => r.region === "global_en");
+    expect(global!.docsRoot).toBe("https://platform.minimax.io/docs");
   });
 
   it("exposes the CN OpenAI- and Anthropic-compatible endpoints via regions", async () => {
@@ -97,5 +99,6 @@ describe("MiniMax endpoint configuration", () => {
     expect(cn).toBeDefined();
     expect(cn!.openaiBaseUrl).toBe("https://api.minimaxi.com/v1");
     expect(cn!.anthropicBaseUrl).toBe("https://api.minimaxi.com/anthropic");
+    expect(cn!.docsRoot).toBe("https://platform.minimaxi.com/docs");
   });
 });
